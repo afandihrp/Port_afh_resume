@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import SystemDashboard from "../components/SystemDashboard";
+import SystemDashboard from "./SystemDashboard";
 
 export const metadata: Metadata = {
   title: "System Monitor",

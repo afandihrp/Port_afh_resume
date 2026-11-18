@@ -10,6 +10,39 @@ const SAMPLE_INTERVAL_MS = 1000;
 const ANIMATION_DURATION_MS = 600;
 const CPU_COLOR = "#2f6f4e";
 const RAM_COLOR = "#9a6b2f";
+const COLLECTOR_URL = "http://localhost:5000/stats";
+const COLLECTOR_TIMEOUT_MS = 800;
+
+type CollectorResponse = {
+  cpu_percent?: number;
+  ram_percent?: number;
+};
+
+type StatsSource = "checking" | "live" | "dummy";
+
+const STATUS_LABELS: Record<StatsSource, string> = {
+  checking: "Checking · localhost:5000",
+  live: "Live · localhost:5000",
+  dummy: "Simulated · collector offline",
+};
+
+const SOURCE_DESCRIPTIONS: Record<StatsSource, string> = {
+  checking: "Sampling CPU and RAM every second while checking the local collector.",
+  live: "Live CPU and RAM sampled from the local collector at localhost:5000.",
+  dummy: "A dummy 16 GB machine, sampled every second. Nothing here reads from your system.",
+};
+
+const FOOTER_LABELS: Record<StatsSource, string> = {
+  checking: "Checking the local collector.",
+  live: "Live data from the local collector.",
+  dummy: "Simulated data. No real system metrics.",
+};
+
+const SOURCE_DOT_COLORS: Record<StatsSource, string | null> = {
+  checking: null,
+  live: CPU_COLOR,
+  dummy: RAM_COLOR,
+};
 
 type ChartPoint = {
   x: number;
@@ -78,20 +111,78 @@ function buildChartGeometry(history: number[], width: number, height: number): C
   return { area, line, points };
 }
 
-function useSimulatedStats() {
+function isPercent(value: unknown): value is number {
+  return typeof value === "number" && Number.isFinite(value) && value >= 0 && value <= 100;
+}
+
+async function fetchCollectorStats() {
+  const controller = new AbortController();
+  const timeoutId = window.setTimeout(() => controller.abort(), COLLECTOR_TIMEOUT_MS);
+
+  try {
+    const response = await fetch(COLLECTOR_URL, {
+      cache: "no-store",
+      signal: controller.signal,
+    });
+
+    if (!response.ok) {
+      return null;
+    }
+
+    const data = (await response.json()) as CollectorResponse;
+
+    if (!isPercent(data.cpu_percent) || !isPercent(data.ram_percent)) {
+      return null;
+    }
+
+    return { cpuPercent: data.cpu_percent, ramPercent: data.ram_percent };
+  } catch {
+    return null;
+  } finally {
+    window.clearTimeout(timeoutId);
+  }
+}
+
+function useSystemStats() {
   const [cpuHistory, setCpuHistory] = useState(() => seedHistory(34, 16));
   const [ramHistory, setRamHistory] = useState(() => seedHistory(58, 8));
+  const [source, setSource] = useState<StatsSource>("checking");
 
   useEffect(() => {
-    const timer = window.setInterval(() => {
-      setCpuHistory((previous) => appendSample(previous, drift(previous[previous.length - 1], 16, 6, 94)));
-      setRamHistory((previous) => appendSample(previous, drift(previous[previous.length - 1], 5, 32, 90)));
-    }, SAMPLE_INTERVAL_MS);
+    let cancelled = false;
 
-    return () => window.clearInterval(timer);
+    async function sample() {
+      const liveStats = await fetchCollectorStats();
+      if (cancelled) {
+        return;
+      }
+
+      if (liveStats) {
+        setSource("live");
+        setCpuHistory((previous) => appendSample(previous, liveStats.cpuPercent));
+        setRamHistory((previous) => appendSample(previous, liveStats.ramPercent));
+        return;
+      }
+
+      setSource("dummy");
+      setCpuHistory((previous) =>
+        appendSample(previous, drift(previous[previous.length - 1], 16, 6, 94))
+      );
+      setRamHistory((previous) =>
+        appendSample(previous, drift(previous[previous.length - 1], 5, 32, 90))
+      );
+    }
+
+    sample();
+    const timer = window.setInterval(sample, SAMPLE_INTERVAL_MS);
+
+    return () => {
+      cancelled = true;
+      window.clearInterval(timer);
+    };
   }, []);
 
-  return { cpuHistory, ramHistory };
+  return { cpuHistory, ramHistory, source };
 }
 
 function useAnimatedNumber(target: number) {
@@ -254,7 +345,7 @@ function HistoryChart({ cpuHistory, ramHistory }: { cpuHistory: number[]; ramHis
 }
 
 export default function SystemDashboard() {
-  const { cpuHistory, ramHistory } = useSimulatedStats();
+  const { cpuHistory, ramHistory, source } = useSystemStats();
 
   const cpuPercent = cpuHistory[cpuHistory.length - 1];
   const ramPercent = ramHistory[ramHistory.length - 1];
@@ -270,7 +361,16 @@ export default function SystemDashboard() {
         <Link href="/" className="text-sm font-medium transition-colors hover:text-muted">
           ← Afandi
         </Link>
-        <span className="font-mono text-xs text-muted">Updates every second</span>
+        <span className="flex items-center gap-2 font-mono text-xs text-muted">
+          <span
+            aria-hidden="true"
+            className="h-1.5 w-1.5 rounded-full bg-rule"
+            style={
+              SOURCE_DOT_COLORS[source] ? { backgroundColor: SOURCE_DOT_COLORS[source] } : undefined
+            }
+          />
+          {STATUS_LABELS[source]}
+        </span>
       </header>
 
       <main className="mx-auto w-full max-w-3xl px-6 pb-20">
@@ -278,9 +378,29 @@ export default function SystemDashboard() {
           <p className="text-sm text-muted">System monitor</p>
           <h1 className="mt-2 text-3xl font-semibold tracking-tight sm:text-4xl">CPU and RAM</h1>
           <p className="mt-3 max-w-xl text-sm leading-7 text-muted-strong">
-            A dummy 16 GB machine, sampled every second. Nothing here reads from your system.
+            {SOURCE_DESCRIPTIONS[source]}
           </p>
         </div>
+
+        {source === "dummy" ? (
+          <div
+            role="status"
+            className="mt-6 flex items-start gap-3 rounded-md border border-rule px-4 py-3"
+          >
+            <span
+              aria-hidden="true"
+              className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full"
+              style={{ backgroundColor: RAM_COLOR }}
+            />
+            <div className="text-sm leading-6">
+              <p className="font-medium text-ink">Go backend offline</p>
+              <p className="mt-0.5 text-muted">
+                Showing dummy data. Start the collector at{" "}
+                <span className="font-mono text-xs">localhost:5000</span> to switch to live metrics.
+              </p>
+            </div>
+          </div>
+        ) : null}
 
         <div className="grid gap-10 py-10 sm:grid-cols-2 sm:gap-0">
           <div className="sm:pr-10">
@@ -312,7 +432,7 @@ export default function SystemDashboard() {
         <HistoryChart cpuHistory={cpuHistory} ramHistory={ramHistory} />
 
         <footer className="mt-10 flex flex-wrap items-center justify-between gap-3 border-t border-rule pt-6 text-xs text-muted">
-          <span>Simulated data. No real system metrics.</span>
+          <span>{FOOTER_LABELS[source]}</span>
           <Link href="/" className="transition-colors hover:text-ink">
             Portfolio →
           </Link>
