@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import type { FormEvent } from "react";
 import { SuggestionList, useCommandSuggestions } from "./CommandSuggestions";
 import { commands } from "./commands";
+import { CalculatorPrank } from "./CalculatorPrank";
 import { ResumeViewer } from "./ResumeViewer";
 import { TopOutput } from "./TopOutput";
 import { downloadResume } from "./resume";
@@ -379,6 +380,14 @@ function ContactOutput() {
   );
 }
 
+function isCalculation(input: string) {
+  const hasOnlyMathCharacters = /^[\d\s.+\-*/%()]+$/.test(input);
+  const hasOperator = /[+\-*/%]/.test(input);
+  const hasDigit = /\d/.test(input);
+
+  return hasOnlyMathCharacters && hasOperator && hasDigit;
+}
+
 export default function TerminalPortfolio() {
   const router = useRouter();
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -389,6 +398,7 @@ export default function TerminalPortfolio() {
   const [phase, setPhase] = useState<"intro" | "ready">(hasPlayedIntro ? "ready" : "intro");
   const [input, setInput] = useState("");
   const [isResumeOpen, setIsResumeOpen] = useState(false);
+  const [calculatorExpression, setCalculatorExpression] = useState<string | null>(null);
 
   const { suggestions, highlightedIndex, handleKeyDown } = useCommandSuggestions(input, (commandName) =>
     setInput(`${commandName} `)
@@ -515,6 +525,11 @@ export default function TerminalPortfolio() {
     setInput("");
     setEntries((previous) => [...previous, { type: "command", text: command }]);
 
+    if (isCalculation(command)) {
+      setCalculatorExpression(command);
+      return;
+    }
+
     const [name, argument] = command.toLowerCase().split(/\s+/);
 
     switch (name) {
@@ -550,6 +565,10 @@ export default function TerminalPortfolio() {
         return;
       case "contact":
         addEntries([{ type: "contact" }]);
+        return;
+      case "calc":
+      case "calculator":
+        setCalculatorExpression("0");
         return;
       case "resume":
         if (argument === "-download") {
@@ -696,6 +715,14 @@ export default function TerminalPortfolio() {
       </div>
 
       <ResumeViewer isOpen={isResumeOpen} onClose={() => setIsResumeOpen(false)} />
+
+      {calculatorExpression === null ? null : (
+        <CalculatorPrank
+          key={calculatorExpression}
+          expression={calculatorExpression}
+          onClose={() => setCalculatorExpression(null)}
+        />
+      )}
     </div>
   );
 }

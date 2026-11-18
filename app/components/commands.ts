@@ -10,6 +10,7 @@ export const commands: CommandInfo[] = [
   { name: "projects", description: "list selected work" },
   { name: "experience", description: "work history" },
   { name: "contact", description: "email and GitHub" },
+  { name: "calc", description: "open calculator" },
   { name: "resume", description: "view or download my CV" },
   { name: "top", description: "real hardware snapshot from the browser" },
   { name: "stats", description: "open the system monitor" },
