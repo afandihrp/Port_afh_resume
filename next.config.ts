@@ -15,6 +15,17 @@ const nextConfig: NextConfig = {
       },
     },
   },
+  async headers() {
+    return [
+      {
+        source: "/resume_cv.pdf",
+        headers: [
+          { key: "Content-Type", value: "application/pdf" },
+          { key: "Content-Disposition", value: 'inline; filename="resume_cv.pdf"' },
+        ],
+      },
+    ];
+  },
 };
 
 export default nextConfig;
