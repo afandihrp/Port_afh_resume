@@ -3,7 +3,7 @@ import SystemDashboard from "./SystemDashboard";
 
 export const metadata: Metadata = {
   title: "System Monitor",
-  description: "Animated CPU and RAM dashboard with simulated telemetry",
+  description: "Live CPU and RAM dashboard with a simulated fallback when the collector is offline.",
 };
 
 export default function StatsPage() {

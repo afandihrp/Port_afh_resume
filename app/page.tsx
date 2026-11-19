@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Desktop from "./components/Desktop";
+import Desktop from "./Desktop";
 
 export const metadata: Metadata = {
   title: "Portfolio",

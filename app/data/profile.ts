@@ -1,0 +1,17 @@
+export const profile = {
+  name: "Afandi",
+  user: "afandi",
+  host: "telkom",
+  role: "Software Engineer",
+  focus: "Web, IoT/Embedded",
+  university: "Telkom University",
+  major: "Computer Engineering",
+  graduation: "August 2026",
+  gpa: "3.52",
+  email: "mafandiharahap@gmail.com",
+  phone: "0851-6320-0490",
+  whatsapp: "https://wa.me/6285163200490",
+  github: "https://github.com/afandihrp",
+  githubLabel: "github.com/afandihrp",
+  stack: "TypeScript, React, Next.js, Go",
+};

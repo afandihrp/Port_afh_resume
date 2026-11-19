@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import TerminalPortfolio from "../components/TerminalPortfolio";
+import TerminalPortfolio from "./TerminalPortfolio";
 
 export const metadata: Metadata = {
   title: "Terminal",

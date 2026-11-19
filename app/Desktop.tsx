@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { CalculatorPrank } from "./CalculatorPrank";
-import { ResumeViewer } from "./ResumeViewer";
+import { CalculatorPrank } from "./components/CalculatorPrank";
+import { ResumeViewer } from "./components/ResumeViewer";
+import { profile } from "./data/profile";
 
 const timeFormatter = new Intl.DateTimeFormat("en-GB", {
   hour: "2-digit",
@@ -80,7 +81,7 @@ export default function Desktop() {
         <div>
           <p className="font-mono text-sm text-term-brass">afandi@portfolio</p>
           <p className="mt-1 font-mono text-[11px] text-term-dim">
-            Software Engineer · IoT/Embedded
+            {profile.role} · {profile.focus}
           </p>
         </div>
 
@@ -145,13 +146,13 @@ export default function Desktop() {
         <div className="flex justify-end border-t border-term-line pt-4 font-mono text-[11px] text-term-dim">
           <div className="flex gap-4">
             <a
-              href="mailto:mafandiharahap@gmail.com"
+              href={`mailto:${profile.email}`}
               className="text-term-brass transition-colors hover:text-term-bright"
             >
               email
             </a>
             <a
-              href="https://github.com/afandihrp"
+              href={profile.github}
               target="_blank"
               rel="noreferrer"
               className="text-term-brass transition-colors hover:text-term-bright"
@@ -159,7 +160,7 @@ export default function Desktop() {
               github
             </a>
             <a
-              href="https://wa.me/6285163200490"
+              href={profile.whatsapp}
               target="_blank"
               rel="noreferrer"
               className="text-term-brass transition-colors hover:text-term-bright"
