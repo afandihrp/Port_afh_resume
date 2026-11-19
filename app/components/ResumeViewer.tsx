@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { downloadResume, RESUME_PATH } from "./resume";
+import { WindowControls } from "./WindowControls";
 
 type ResumeViewerProps = {
   isOpen: boolean;
@@ -112,23 +113,15 @@ export function ResumeViewer({ isOpen, onClose }: ResumeViewerProps) {
     >
       <div className="flex h-full max-h-[900px] w-full max-w-3xl flex-col overflow-hidden rounded-xl border border-term-line bg-term-panel">
         <header className="flex items-center justify-between gap-4 border-b border-term-line px-4 py-2.5">
+          <WindowControls onClose={onClose} />
           <span className="font-mono text-[11px] text-term-dim">resume_cv.pdf</span>
-          <div className="flex items-center gap-4">
-            <button
-              type="button"
-              onClick={downloadResume}
-              className="font-mono text-[11px] text-term-brass transition-colors hover:text-term-bright"
-            >
-              download
-            </button>
-            <button
-              type="button"
-              onClick={onClose}
-              className="font-mono text-[11px] text-term-dim transition-colors hover:text-term-bright"
-            >
-              close
-            </button>
-          </div>
+          <button
+            type="button"
+            onClick={downloadResume}
+            className="font-mono text-[11px] text-term-brass transition-colors hover:text-term-bright"
+          >
+            download
+          </button>
         </header>
 
         <div className="terminal-scroll flex-1 overflow-y-auto bg-[#0b0b0b] p-3 sm:p-4">

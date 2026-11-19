@@ -1,15 +1,17 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { WindowControls } from "../components/WindowControls";
 import type { ReactNode } from "react";
 
 const MAX_HISTORY = 60;
 const RAM_TOTAL_GB = 16;
 const SAMPLE_INTERVAL_MS = 1000;
 const ANIMATION_DURATION_MS = 600;
-const CPU_COLOR = "#2f6f4e";
-const RAM_COLOR = "#9a6b2f";
+const CPU_COLOR = "#c2a36b";
+const RAM_COLOR = "#b06a5c";
 const COLLECTOR_URL = "http://localhost:5000/stats";
 const COLLECTOR_TIMEOUT_MS = 800;
 
@@ -241,21 +243,23 @@ function Metric({
 
   return (
     <div>
-      <h2 className="text-xs font-medium uppercase tracking-[0.18em] text-muted">{label}</h2>
+      <h2 className="font-mono text-[11px] uppercase tracking-[0.18em] text-term-dim">{label}</h2>
 
-      <p className="mt-4 font-mono text-5xl font-medium tracking-tight tabular-nums text-ink">
+      <p className="mt-4 font-mono text-5xl font-medium tracking-tight tabular-nums text-term-bright">
         {animatedPercent.toFixed(1)}
-        <span className="ml-1 text-xl text-muted">%</span>
+        <span className="ml-1 text-xl text-term-dim">%</span>
       </p>
 
-      <div className="mt-5 h-1.5 overflow-hidden rounded-full bg-rule">
+      <div className="mt-5 h-1.5 overflow-hidden rounded-full bg-term-line">
         <div
           className="h-full rounded-full transition-[width] duration-700 ease-out"
           style={{ width: `${animatedPercent}%`, backgroundColor: color }}
         />
       </div>
 
-      <div className="mt-4 flex flex-wrap gap-x-6 gap-y-1 text-xs text-muted">{children}</div>
+      <div className="mt-4 flex flex-wrap gap-x-6 gap-y-1 font-mono text-[11px] text-term-dim">
+        {children}
+      </div>
     </div>
   );
 }
@@ -272,11 +276,13 @@ function HistoryChart({ cpuHistory, ramHistory }: { cpuHistory: number[]; ramHis
   const gridLevels = [25, 50, 75];
 
   return (
-    <section className="border-t border-rule pt-8">
+    <section className="border-t border-term-line pt-8">
       <div className="flex flex-wrap items-baseline justify-between gap-3">
-        <h2 className="text-xs font-medium uppercase tracking-[0.18em] text-muted">Last 60 seconds</h2>
+        <h2 className="font-mono text-[11px] uppercase tracking-[0.18em] text-term-dim">
+          Last 60 seconds
+        </h2>
 
-        <div className="flex items-center gap-5 text-xs text-muted">
+        <div className="flex items-center gap-5 font-mono text-[11px] text-term-dim">
           <span className="flex items-center gap-2">
             <span className="h-2 w-2 rounded-full" style={{ backgroundColor: CPU_COLOR }} />
             CPU
@@ -304,7 +310,7 @@ function HistoryChart({ cpuHistory, ramHistory }: { cpuHistory: number[]; ramHis
               x2={width}
               y1={y}
               y2={y}
-              stroke="var(--rule)"
+              stroke="var(--color-term-line)"
               strokeDasharray="3 6"
               vectorEffect="non-scaling-stroke"
             />
@@ -355,89 +361,100 @@ export default function SystemDashboard() {
   const ramUsedGB = (ramPercent / 100) * RAM_TOTAL_GB;
   const ramAvailableGB = RAM_TOTAL_GB - ramUsedGB;
 
+  const router = useRouter();
+
   return (
-    <div className="min-h-screen bg-paper text-ink">
-      <header className="mx-auto flex w-full max-w-3xl items-center justify-between gap-4 px-6 py-6 sm:py-8">
-        <Link href="/" className="text-sm font-medium transition-colors hover:text-muted">
-          ← Afandi
-        </Link>
-        <span className="flex items-center gap-2 font-mono text-xs text-muted">
-          <span
-            aria-hidden="true"
-            className="h-1.5 w-1.5 rounded-full bg-rule"
-            style={
-              SOURCE_DOT_COLORS[source] ? { backgroundColor: SOURCE_DOT_COLORS[source] } : undefined
-            }
-          />
-          {STATUS_LABELS[source]}
-        </span>
-      </header>
+    <div className="stats-page min-h-screen bg-term-bg p-3 sm:p-6">
+      <div className="mx-auto w-full max-w-4xl overflow-hidden rounded-xl border border-term-line bg-term-panel shadow-[0_40px_100px_-50px_rgba(0,0,0,0.9)]">
+        <header className="relative flex items-center gap-2 border-b border-term-line px-4 py-2.5">
+          <WindowControls onClose={() => router.push("/")} />
 
-      <main className="mx-auto w-full max-w-3xl px-6 pb-20">
-        <div className="border-b border-rule pb-8">
-          <p className="text-sm text-muted">System monitor</p>
-          <h1 className="mt-2 text-3xl font-semibold tracking-tight sm:text-4xl">CPU and RAM</h1>
-          <p className="mt-3 max-w-xl text-sm leading-7 text-muted-strong">
-            {SOURCE_DESCRIPTIONS[source]}
-          </p>
-        </div>
+          <span className="absolute left-1/2 -translate-x-1/2 font-mono text-[11px] text-term-dim">
+            System Monitor
+          </span>
 
-        {source === "dummy" ? (
-          <div
-            role="status"
-            className="mt-6 flex items-start gap-3 rounded-md border border-rule px-4 py-3"
-          >
+          <span className="ml-auto flex items-center gap-2 font-mono text-[11px] text-term-dim">
             <span
               aria-hidden="true"
-              className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full"
-              style={{ backgroundColor: RAM_COLOR }}
+              className="h-2 w-2 rounded-full bg-term-line"
+              style={
+                SOURCE_DOT_COLORS[source] ? { backgroundColor: SOURCE_DOT_COLORS[source] } : undefined
+              }
             />
-            <div className="text-sm leading-6">
-              <p className="font-medium text-ink">Go backend offline</p>
-              <p className="mt-0.5 text-muted">
-                Showing dummy data. Start the collector at{" "}
-                <span className="font-mono text-xs">localhost:5000</span> to switch to live metrics.
-              </p>
+            <span className="hidden sm:inline">{STATUS_LABELS[source]}</span>
+          </span>
+        </header>
+
+        <main className="terminal-scroll px-4 py-6 sm:px-8 sm:py-8">
+          <div className="border-b border-term-line pb-8">
+            <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-term-dim">
+              System monitor
+            </p>
+            <h1 className="mt-2 font-mono text-2xl font-medium text-term-bright sm:text-3xl">
+              CPU and RAM
+            </h1>
+            <p className="mt-3 max-w-xl font-mono text-[12px] leading-6 text-term-ink">
+              {SOURCE_DESCRIPTIONS[source]}
+            </p>
+          </div>
+
+          {source === "dummy" ? (
+            <div
+              role="status"
+              className="mt-6 flex items-start gap-3 rounded-md border border-term-line bg-term-bg px-4 py-3"
+            >
+              <span
+                aria-hidden="true"
+                className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full"
+                style={{ backgroundColor: RAM_COLOR }}
+              />
+              <div className="font-mono text-[12px] leading-6">
+                <p className="text-term-bright">Go backend offline</p>
+                <p className="mt-0.5 text-term-dim">
+                  Showing dummy data. Start the collector at{" "}
+                  <span className="text-xs">localhost:5000</span> to switch to live metrics.
+                </p>
+              </div>
+            </div>
+          ) : null}
+
+          <div className="grid gap-10 py-10 sm:grid-cols-2 sm:gap-0">
+            <div className="sm:pr-10">
+              <Metric label="CPU usage" percent={cpuPercent} color={CPU_COLOR}>
+                <span>
+                  60s avg <span className="text-term-bright">{cpuSummary.average.toFixed(1)}%</span>
+                </span>
+                <span>
+                  Peak <span className="text-term-bright">{cpuSummary.peak.toFixed(1)}%</span>
+                </span>
+              </Metric>
+            </div>
+
+            <div className="sm:border-l sm:border-term-line sm:pl-10">
+              <Metric label="Memory usage" percent={ramPercent} color={RAM_COLOR}>
+                <span>
+                  <span className="text-term-bright">{ramUsedGB.toFixed(1)} GB</span> used
+                </span>
+                <span>
+                  <span className="text-term-bright">{ramAvailableGB.toFixed(1)} GB</span> free
+                </span>
+                <span>
+                  60s avg <span className="text-term-bright">{ramSummary.average.toFixed(1)}%</span>
+                </span>
+              </Metric>
             </div>
           </div>
-        ) : null}
 
-        <div className="grid gap-10 py-10 sm:grid-cols-2 sm:gap-0">
-          <div className="sm:pr-10">
-            <Metric label="CPU usage" percent={cpuPercent} color={CPU_COLOR}>
-              <span>
-                60s avg <span className="font-mono text-ink">{cpuSummary.average.toFixed(1)}%</span>
-              </span>
-              <span>
-                Peak <span className="font-mono text-ink">{cpuSummary.peak.toFixed(1)}%</span>
-              </span>
-            </Metric>
-          </div>
+          <HistoryChart cpuHistory={cpuHistory} ramHistory={ramHistory} />
 
-          <div className="sm:border-l sm:border-rule sm:pl-10">
-            <Metric label="Memory usage" percent={ramPercent} color={RAM_COLOR}>
-              <span>
-                <span className="font-mono text-ink">{ramUsedGB.toFixed(1)} GB</span> used
-              </span>
-              <span>
-                <span className="font-mono text-ink">{ramAvailableGB.toFixed(1)} GB</span> free
-              </span>
-              <span>
-                60s avg <span className="font-mono text-ink">{ramSummary.average.toFixed(1)}%</span>
-              </span>
-            </Metric>
-          </div>
-        </div>
-
-        <HistoryChart cpuHistory={cpuHistory} ramHistory={ramHistory} />
-
-        <footer className="mt-10 flex flex-wrap items-center justify-between gap-3 border-t border-rule pt-6 text-xs text-muted">
-          <span>{FOOTER_LABELS[source]}</span>
-          <Link href="/" className="transition-colors hover:text-ink">
-            Portfolio →
-          </Link>
-        </footer>
-      </main>
+          <footer className="mt-10 flex flex-wrap items-center justify-between gap-3 border-t border-term-line pt-6 font-mono text-[11px] text-term-dim">
+            <span>{FOOTER_LABELS[source]}</span>
+            <Link href="/" className="text-term-brass transition-colors hover:text-term-bright">
+              Portfolio →
+            </Link>
+          </footer>
+        </main>
+      </div>
     </div>
   );
 }

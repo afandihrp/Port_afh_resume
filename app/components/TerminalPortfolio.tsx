@@ -10,6 +10,7 @@ import { CalculatorPrank } from "./CalculatorPrank";
 import { ResumeViewer } from "./ResumeViewer";
 import { TopOutput } from "./TopOutput";
 import { downloadResume } from "./resume";
+import { WindowControls } from "./WindowControls";
 
 const profile = {
   name: "Afandi",
@@ -620,11 +621,7 @@ export default function TerminalPortfolio() {
     <div className="terminal-page flex min-h-screen items-center justify-center bg-term-bg p-3 sm:p-6">
       <div className="flex h-[calc(100dvh-1.5rem)] max-h-[900px] w-full max-w-4xl flex-col overflow-hidden rounded-xl border border-term-line bg-term-panel shadow-[0_40px_100px_-50px_rgba(0,0,0,0.9)] sm:h-[calc(100dvh-3rem)]">
         <header className="relative flex items-center gap-2 border-b border-term-line px-4 py-2.5">
-          <div aria-hidden="true" className="flex items-center gap-2">
-            <span className="h-3 w-3 rounded-full bg-[#ff5f57]" />
-            <span className="h-3 w-3 rounded-full bg-[#febc2e]" />
-            <span className="h-3 w-3 rounded-full bg-[#28c840]" />
-          </div>
+          <WindowControls onClose={() => router.push("/")} />
 
           <span className="absolute left-1/2 -translate-x-1/2 font-mono text-[11px] text-term-dim">
             Terminal

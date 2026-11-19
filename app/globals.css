@@ -38,12 +38,16 @@ body {
   font-family: var(--font-geist-sans), system-ui, sans-serif;
 }
 
-body:has(.terminal-page) {
+body:has(.terminal-page),
+body:has(.desktop-page),
+body:has(.stats-page) {
   background: #101010;
   color: #c4c4c4;
 }
 
-html:has(.terminal-page) {
+html:has(.terminal-page),
+html:has(.desktop-page),
+html:has(.stats-page) {
   background: #101010;
 }
 
@@ -55,7 +59,9 @@ html {
   background: var(--rule);
 }
 
-.terminal-page ::selection {
+.terminal-page ::selection,
+.desktop-page ::selection,
+.stats-page ::selection {
   background: #3b3323;
   color: #f2f0eb;
 }

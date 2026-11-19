@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { WindowControls } from "./WindowControls";
 
 type CalculatorPrankProps = {
   expression: string;
@@ -88,14 +89,8 @@ export function CalculatorPrank({ expression, onClose }: CalculatorPrankProps) {
         className="w-full max-w-xs rounded-lg border border-term-line bg-term-panel p-3"
       >
         <div className="flex items-center justify-between px-1 pb-2">
+          <WindowControls onClose={onClose} />
           <span className="font-mono text-[11px] text-term-dim">calculator</span>
-          <button
-            type="button"
-            onClick={onClose}
-            className="font-mono text-[11px] text-term-dim transition-colors hover:text-term-bright"
-          >
-            close
-          </button>
         </div>
 
         <div className="mb-2 overflow-x-auto rounded-md border border-term-line bg-term-bg px-3 py-3 text-right font-mono text-2xl text-term-bright">

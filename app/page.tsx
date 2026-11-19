@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
-import TerminalPortfolio from "./components/TerminalPortfolio";
+import Desktop from "./components/Desktop";
 
 export const metadata: Metadata = {
-  title: "Afandi Web Developer - IoT/Embedded Engineer",
-  description: "Terminal portfolio.",
+  title: "Portfolio",
+  description: "Afandi — software engineer and IoT/embedded developer.",
 };
 
 export default function Home() {
-  return <TerminalPortfolio />;
+  return <Desktop />;
 }
