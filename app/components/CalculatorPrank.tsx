@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { profile } from "../data/profile";
 import { WindowControls } from "./WindowControls";
 
 type CalculatorPrankProps = {
@@ -17,6 +18,9 @@ const KEYPAD_ROWS = [
 ];
 
 const OPERATORS = new Set(["÷", "×", "−", "+", "(", ")", "."]);
+
+const CTA_CLASS_NAME =
+  "rounded-md border border-term-brass/50 bg-term-brass/10 py-2 font-mono text-xs text-term-brass transition-colors hover:bg-term-brass/20";
 
 export function CalculatorPrank({ expression, onClose }: CalculatorPrankProps) {
   const [display, setDisplay] = useState(expression || "0");
@@ -139,15 +143,42 @@ export function CalculatorPrank({ expression, onClose }: CalculatorPrankProps) {
             }
           }}
         >
-          <div className="w-full max-w-[240px] rounded-lg border border-term-line bg-term-panel p-4 text-center">
-            <p className="font-mono text-sm text-term-bright">Feature coming soon :)</p>
-            <button
-              type="button"
-              onClick={onClose}
-              className="mt-4 w-full rounded-md border border-term-brass/50 bg-term-brass/10 py-2 font-mono text-xs text-term-brass transition-colors hover:bg-term-brass/20"
-            >
-              ok
-            </button>
+          <div className="w-full max-w-xs overflow-hidden rounded-lg border border-term-line bg-term-panel">
+            <header className="relative flex items-center gap-2 border-b border-term-line px-3 py-2">
+              <WindowControls onClose={onClose} />
+              <span className="absolute left-1/2 -translate-x-1/2 font-mono text-[11px] text-term-dim">
+                contact
+              </span>
+            </header>
+
+            <div className="p-4 text-center">
+              <p className="font-mono text-sm text-term-bright">Feature coming soon :)</p>
+              <p className="mt-1 font-mono text-[11px] text-term-dim">
+                Want a working one? Contact me.
+              </p>
+
+              <div className="mt-4 grid grid-cols-2 gap-2">
+                <a href={`mailto:${profile.email}`} className={CTA_CLASS_NAME}>
+                  email
+                </a>
+                <a
+                  href={profile.whatsapp}
+                  target="_blank"
+                  rel="noreferrer"
+                  className={CTA_CLASS_NAME}
+                >
+                  whatsapp
+                </a>
+              </div>
+
+              <button
+                type="button"
+                onClick={onClose}
+                className="mt-2 w-full rounded-md border border-term-line bg-term-bg py-2 font-mono text-xs text-term-dim transition-colors hover:text-term-bright"
+              >
+                ok
+              </button>
+            </div>
           </div>
         </div>
       ) : null}

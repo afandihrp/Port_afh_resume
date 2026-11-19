@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { CalculatorPrank } from "./components/CalculatorPrank";
 import { ResumeViewer } from "./components/ResumeViewer";
+import { SegmentedClock } from "./components/SegmentedClock";
 import { profile } from "./data/profile";
 
 const timeFormatter = new Intl.DateTimeFormat("en-GB", {
@@ -97,9 +98,7 @@ export default function Desktop() {
             <p className="font-mono text-[11px] uppercase tracking-[0.3em] text-term-dim">
               local time
             </p>
-            <p className="mt-3 font-mono text-5xl font-light tabular-nums text-term-bright sm:text-7xl">
-              {time}
-            </p>
+            <SegmentedClock time={time} />
             <p className="mt-3 font-mono text-sm text-term-brass">{date}</p>
           </section>
 
