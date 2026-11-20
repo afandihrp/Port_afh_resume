@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { CalculatorPrank } from "./components/CalculatorPrank";
+import { GameOfLife } from "./components/GameOfLife";
 import { ResumeViewer } from "./components/ResumeViewer";
 import { SegmentedClock } from "./components/SegmentedClock";
 import { profile } from "./data/profile";
@@ -62,6 +63,7 @@ export default function Desktop() {
   const [now, setNow] = useState<Date | null>(null);
   const [calculatorExpression, setCalculatorExpression] = useState<string | null>(null);
   const [isResumeOpen, setIsResumeOpen] = useState(false);
+  const [isGameOpen, setIsGameOpen] = useState(false);
 
   useEffect(() => {
     const start = window.setTimeout(() => setNow(new Date()), 0);
@@ -108,10 +110,10 @@ export default function Desktop() {
           >
             <div className="flex items-center justify-between font-mono text-[11px] text-term-dim">
               <span>applications</span>
-              <span>4 apps</span>
+              <span>5 apps</span>
             </div>
 
-            <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
               <AppTile
                 label="Terminal"
                 description="commands and projects"
@@ -135,6 +137,12 @@ export default function Desktop() {
                 description="live CPU and RAM"
                 glyph="~%"
                 href="/stats"
+              />
+              <AppTile
+                label="Life"
+                description="Conway's Game of Life"
+                glyph="▦"
+                onClick={() => setIsGameOpen(true)}
               />
             </div>
           </section>
@@ -171,6 +179,8 @@ export default function Desktop() {
       </footer>
 
       <ResumeViewer isOpen={isResumeOpen} onClose={() => setIsResumeOpen(false)} />
+
+      {isGameOpen ? <GameOfLife onClose={() => setIsGameOpen(false)} /> : null}
 
       {calculatorExpression === null ? null : (
         <CalculatorPrank
